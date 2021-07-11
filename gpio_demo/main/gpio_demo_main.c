@@ -8,7 +8,6 @@
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "esp_spi_flash.h"
-#include "esp_err.h"
 #include "driver/gpio.h"
 #include "driver/adc.h"
 
@@ -33,7 +32,7 @@ void setup_gpio(){
 
     adc_config.mode = ADC_READ_TOUT_MODE;
     adc_config.clk_div = 8; 
-    ESP_ERROR_CHECK(adc_init(&adc_config));
+    adc_init(&adc_config);
 }
 
 static void blink_task(void *arg)
