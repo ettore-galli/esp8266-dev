@@ -15,8 +15,8 @@
 #define GPIO_OUTPUT_LED    14
 #define GPIO_OUTPUT_PIN_SEL  (1ULL<<GPIO_OUTPUT_LED)
 
-// ADC for rate adjust
-// TODO
+// ADC value
+uint16_t adc_input_value = 10;
 
 
 void setup_gpio(){
@@ -40,7 +40,7 @@ static void blink_task(void *arg)
     bool led_on = false;
 
     for (;;) {
-        vTaskDelay(300 / portTICK_PERIOD_MS);
+        vTaskDelay(adc_input_value / portTICK_PERIOD_MS);
         led_on = !led_on;
         gpio_set_level(GPIO_OUTPUT_LED, led_on);
     }
@@ -51,7 +51,7 @@ static void log_task(void *arg)
 
     for (;;) {
         vTaskDelay(500 / portTICK_PERIOD_MS);
-        printf("Logging something...\n");;
+        printf("%u", adc_input_value);
     }
 }
 
@@ -62,6 +62,7 @@ static void sense_task(void *arg)
         uint16_t adc_data;
         if (ESP_OK == adc_read(&adc_data)) {
             printf("adc read: %d\r\n", adc_data);
+            adc_input_value = adc_data;
         }
         vTaskDelay(500 / portTICK_PERIOD_MS);
     }
