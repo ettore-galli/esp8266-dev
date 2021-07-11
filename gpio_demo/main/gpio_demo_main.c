@@ -16,7 +16,7 @@
 #define GPIO_OUTPUT_PIN_SEL  (1ULL<<GPIO_OUTPUT_LED)
 
 // ADC value
-uint16_t adc_input_value = 10;
+volatile uint16_t adc_input_value = 10;
 
 
 void setup_gpio(){
@@ -50,8 +50,7 @@ static void log_task(void *arg)
 {
 
     for (;;) {
-        vTaskDelay(500 / portTICK_PERIOD_MS);
-        printf("%u", adc_input_value);
+        vTaskDelay(300 / portTICK_PERIOD_MS);
     }
 }
 
@@ -61,10 +60,9 @@ static void sense_task(void *arg)
     for (;;) {
         uint16_t adc_data;
         if (ESP_OK == adc_read(&adc_data)) {
-            printf("adc read: %d\r\n", adc_data);
             adc_input_value = adc_data;
         }
-        vTaskDelay(500 / portTICK_PERIOD_MS);
+        vTaskDelay(200 / portTICK_PERIOD_MS);
     }
 }
 
@@ -77,11 +75,11 @@ void app_main()
     printf("[DONE]\n");
 
     printf("Starting blink task...");
-    xTaskCreate(blink_task, "blink_task", 2048, NULL, 10, NULL);
+    xTaskCreate(blink_task, "blink_task", 2048, NULL, 20, NULL);
     printf("[DONE]\n");
 
     printf("Starting log task...");
-    xTaskCreate(log_task, "log_task", 2048, NULL, 10, NULL);
+    xTaskCreate(log_task, "log_task", 2048, NULL, 5, NULL);
     printf("[DONE]\n");
 
     printf("Starting sense task...");
