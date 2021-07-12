@@ -18,6 +18,7 @@
 
 // Timer
 #define TIMER_RELOAD true
+#define TIMER_ONCE false
 
 void setup_gpio()
 {
@@ -56,7 +57,7 @@ static void sense_task(void *arg)
         uint16_t adc_data;
         if (ESP_OK == adc_read(&adc_data))
         {
-            hw_timer_set_us(97*adc_data);
+            hw_timer_set_us(300*adc_data);
         }
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
