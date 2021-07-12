@@ -37,10 +37,17 @@ void setup_gpio(){
 
 static void blink_task(void *arg)
 {
-    bool led_on = false;
+    TickType_t xLastWakeTime;
+    bool led_on; 
+    
+    led_on = false;
+    xLastWakeTime = xTaskGetTickCount();
 
     for (;;) {
-        vTaskDelay(adc_input_value / portTICK_PERIOD_MS);
+        // vTaskDelay(adc_input_value / portTICK_PERIOD_MS);
+        // vTaskDelay(adc_input_value / portTICK_PERIOD_MS);
+        vTaskDelayUntil( &xLastWakeTime, 1 + adc_input_value / portTICK_PERIOD_MS );
+
         led_on = !led_on;
         gpio_set_level(GPIO_OUTPUT_LED, led_on);
     }
