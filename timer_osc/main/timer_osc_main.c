@@ -45,7 +45,8 @@ void toggle_oscillator_state(void *arg)
 
 esp_err_t hw_timer_set_us(uint32_t value)
 {
-    hw_timer_set_load_data(((TIMER_BASE_CLK >> hw_timer_get_clkdiv()) / 1000000) * value); // Calculate the number of timer clocks required for timing, ticks = (80MHz / div) * t
+    uint32_t time = 50 * ((TIMER_BASE_CLK >> hw_timer_get_clkdiv()) / 1000000) * value;
+    hw_timer_set_load_data(time);
     return ESP_OK;
 }
 
@@ -55,9 +56,9 @@ static void sense_task(void *arg)
     for (;;)
     {
         uint16_t adc_data;
-        if (ESP_OK == adc_read(&adc_data))
+        if (ESP_OK == adc_read_fast(&adc_data, 1))
         {
-            hw_timer_set_us(300*adc_data);
+            hw_timer_set_us(adc_data);
         }
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
@@ -72,7 +73,7 @@ void app_main()
     printf("[DONE]\n");
 
     hw_timer_init(toggle_oscillator_state, NULL);
-    hw_timer_alarm_us(1000000, TIMER_RELOAD);
+    hw_timer_alarm_us(1000, TIMER_RELOAD);
 
     printf("Starting sense task...");
     xTaskCreate(sense_task, "sense_task", 2048, NULL, 5, NULL);
