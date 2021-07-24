@@ -45,7 +45,7 @@ void toggle_oscillator_state(void *arg)
 
 esp_err_t hw_timer_set_us(uint32_t value)
 {
-    uint32_t time = 50 * ((TIMER_BASE_CLK >> hw_timer_get_clkdiv()) / 1000000) * value;
+    uint32_t time = 100 * ((TIMER_BASE_CLK >> hw_timer_get_clkdiv()) / 1000000) * value;
     hw_timer_set_load_data(time);
     return ESP_OK;
 }
