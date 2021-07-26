@@ -44,7 +44,7 @@ void toggle_oscillator_state(void *arg)
     static uint32_t curticks = 0;
     static int state = 0;
     curticks++;
-    if (curticks == ticks)
+    if (curticks > ticks)
     {
         curticks = 0;
         gpio_set_level(GPIO_OUTPUT_LED, (state++) % 2);
