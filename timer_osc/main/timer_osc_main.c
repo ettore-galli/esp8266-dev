@@ -20,6 +20,8 @@
 #define TIMER_RELOAD true
 #define TIMER_ONCE false
 
+uint32_t ticks = 100;
+
 void setup_gpio()
 {
     gpio_config_t io_conf;
@@ -39,8 +41,14 @@ void setup_gpio()
 
 void toggle_oscillator_state(void *arg)
 {
+    static uint32_t curticks = 0;
     static int state = 0;
-    gpio_set_level(GPIO_OUTPUT_LED, (state++) % 2);
+    curticks++;
+    if (curticks == ticks)
+    {
+        curticks = 0;
+        gpio_set_level(GPIO_OUTPUT_LED, (state++) % 2);
+    }
 }
 
 esp_err_t hw_timer_set_us(uint32_t value)
@@ -58,7 +66,7 @@ static void sense_task(void *arg)
         uint16_t adc_data;
         if (ESP_OK == adc_read_fast(&adc_data, 1))
         {
-            hw_timer_set_us(adc_data);
+            // hw_timer_set_us(adc_data);
         }
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
