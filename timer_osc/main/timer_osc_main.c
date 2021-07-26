@@ -67,6 +67,7 @@ static void sense_task(void *arg)
         if (ESP_OK == adc_read_fast(&adc_data, 1))
         {
             // hw_timer_set_us(adc_data);
+            ticks = adc_data;
         }
         vTaskDelay(100 / portTICK_PERIOD_MS);
     }
