@@ -11,6 +11,7 @@
 #include "driver/adc.h"
 #include "driver/hw_timer.h"
 #include "esp8266/timer_struct.h"
+#include "esp8266/gpio_struct.h"
 
 // Blinking LED pin
 #define GPIO_OUTPUT_LED 14
@@ -20,7 +21,9 @@
 #define TIMER_RELOAD true
 #define TIMER_ONCE false
 
-uint32_t ticks = 100;
+volatile uint16_t ticks = 100;
+uint32_t current_ticks = 0;
+uint32_t output_state = 0;
 
 void setup_gpio()
 {
@@ -41,14 +44,20 @@ void setup_gpio()
 
 void toggle_oscillator_state(void *arg)
 {
-    static uint32_t curticks = 0;
+    static uint32_t current_ticks = 0;
     static int state = 0;
-    curticks++;
-    if (curticks > ticks)
+    current_ticks++;
+    if (current_ticks > ticks)
     {
-        curticks = 0;
+        current_ticks = 0;
         gpio_set_level(GPIO_OUTPUT_LED, (state++) % 2);
     }
+}
+
+void timer_toggle_hook(void *arg)
+{
+    static int state = 0;
+    gpio_set_level(GPIO_OUTPUT_LED, (state++) % 2);
 }
 
 static void sense_task(void *arg)
@@ -59,12 +68,13 @@ static void sense_task(void *arg)
         uint16_t adc_data;
         if (ESP_OK == adc_read_fast(&adc_data, 1))
         {
-            if (adc_data != ticks)
-            {
-                ticks = adc_data;
-            }
+            // if (adc_data != ticks)
+            // {
+            //     ticks = adc_data;
+            // }
+            hw_timer_set_load_data(((TIMER_BASE_CLK >> hw_timer_get_clkdiv()) / 1000000) * 60 + 10 * ((uint32_t)adc_data));
         }
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(30 / portTICK_PERIOD_MS);
     }
 }
 
@@ -76,10 +86,11 @@ void app_main()
     setup_gpio();
     printf("[DONE]\n");
 
-    hw_timer_init(toggle_oscillator_state, NULL);
-    hw_timer_alarm_us(100, TIMER_RELOAD);
+    hw_timer_init(timer_toggle_hook, NULL);
+    hw_timer_alarm_us(60, TIMER_RELOAD);
 
     printf("Starting sense task...");
     xTaskCreate(sense_task, "sense_task", 2048, NULL, 5, NULL);
+    printf("portTICK_PERIOD_MS=%u\n", portTICK_PERIOD_MS);
     printf("[DONE]\n");
 }
