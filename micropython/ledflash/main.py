@@ -10,7 +10,7 @@ class Worker(object):
         self.delay:float = delay
         self.timer = Timer(-1)
         self.adc = ADC(0)
-        self.timer.init(period=1000, mode=Timer.PERIODIC, callback=self.timer_callback)
+        self.timer.init(period=100, mode=Timer.PERIODIC, callback=self.timer_callback)
 
     def timer_callback(self, arg):
         self.delay = self.adc.read()
