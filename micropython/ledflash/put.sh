@@ -12,4 +12,4 @@ do
     ampy --port $PORT --baud $baud put $FILE
 done
 
-# ampy --port $PORT reset
+ampy --port $PORT reset
