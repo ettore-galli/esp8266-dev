@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := timer-osc
+PROJECT_NAME := adc-led-view
 
 include $(IDF_PATH)/make/project.mk
 

@@ -13,15 +13,34 @@
 #include "esp8266/timer_struct.h"
 #include "esp8266/gpio_struct.h"
 
+#include "driver/pwm.h"
+
 // Blinking LED pin
 #define GPIO_OUTPUT_LED 14
 #define GPIO_OUTPUT_PIN_SEL (1ULL << GPIO_OUTPUT_LED)
+
+#define PWM_OUTPUT 12
 
 // Timer
 #define TIMER_RELOAD true
 #define TIMER_ONCE false
 
 volatile uint16_t current_adc_data = 100;
+volatile uint32_t pwm_period = 1000;
+
+uint32_t getPwmDuty(){
+    return pwm_period / 3;
+}
+
+void setup_pwm()
+{
+    // uint32_t duty[1] = {(uint32_t)pwm_period / 3};
+    uint32_t duty[1] = {getPwmDuty()};
+    const uint32_t pin[1] = {(uint32_t)PWM_OUTPUT};
+    pwm_init(pwm_period, duty, 1, pin);
+    pwm_start();
+    pwm_stop(0);
+}
 
 void setup_gpio()
 {
@@ -49,12 +68,15 @@ void delayUntilMs(TickType_t *xLastWakeTime,
 void perform_flash(int pin, TickType_t *xLastWakeTime, int flashDelayMs)
 {
     gpio_set_level(pin, true);
+    pwm_start();
     delayUntilMs(xLastWakeTime, flashDelayMs);
     gpio_set_level(pin, false);
+    pwm_stop(0);
     delayUntilMs(xLastWakeTime, flashDelayMs);
 }
 
-int calculate_adc_data_flashes(uint16_t current_adc_data){
+int calculate_adc_data_flashes(uint16_t current_adc_data)
+{
     return 1 + current_adc_data / 103;
 }
 
@@ -97,6 +119,7 @@ void app_main()
 
     printf("GPIO Setup...");
     setup_gpio();
+    setup_pwm();
     printf("[DONE]\n");
 
     printf("Starting sense task...");
