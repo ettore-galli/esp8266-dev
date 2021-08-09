@@ -34,7 +34,6 @@ uint32_t getPwmDuty(){
 
 void setup_pwm()
 {
-    // uint32_t duty[1] = {(uint32_t)pwm_period / 3};
     uint32_t duty[1] = {getPwmDuty()};
     const uint32_t pin[1] = {(uint32_t)PWM_OUTPUT};
     pwm_init(pwm_period, duty, 1, pin);
@@ -89,6 +88,8 @@ static void sense_task(void *arg)
         if (ESP_OK == adc_read_fast(&adc_data, 1))
         {
             current_adc_data = adc_data;
+            pwm_period = adc_data;
+            pwm_set_period(20 + pwm_period);
         }
         vTaskDelay(30 / portTICK_PERIOD_MS);
     }
