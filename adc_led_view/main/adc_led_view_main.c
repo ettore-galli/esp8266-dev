@@ -88,8 +88,12 @@ static void sense_task(void *arg)
         if (ESP_OK == adc_read_fast(&adc_data, 1))
         {
             current_adc_data = adc_data;
-            pwm_period = adc_data;
-            pwm_set_period(20 + pwm_period);
+            // if (adc_data != pwm_period){
+            //     pwm_period = adc_data;
+            //     pwm_set_period(3*(20 + pwm_period));
+            //     pwm_start();
+            // }
+            
         }
         vTaskDelay(30 / portTICK_PERIOD_MS);
     }
