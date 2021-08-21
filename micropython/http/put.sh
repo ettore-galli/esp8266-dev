@@ -5,6 +5,7 @@ export baud=115200
 export files=(
     "boot.py" 
     "main.py"
+    "network_definitions.py"
     )
 
 for FILE in ${files[@]};
