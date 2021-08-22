@@ -23,7 +23,7 @@ except:
 
 
 CONNECTION_MONITOR_DELAY = 0.5
-READ_LOOP_SLEEP = 0.1
+READ_LOOP_SLEEP = 1
 
 
 def connect_to_wifi():
