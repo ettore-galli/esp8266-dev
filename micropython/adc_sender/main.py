@@ -4,17 +4,13 @@ import network
 import time
 import socket
 
-from machine import ADC
-
+from machine import Timer, ADC
 import urequests
 
 try:
     from network_definitions import (
         WIFI_ESSID,
         WIFI_PASSWORD,
-        SERVER_HOST,
-        SERVER_PORT,
-        SERVER_PATH,
         DATA_ENDPOINT,
     )
 except:
@@ -23,17 +19,14 @@ except:
     )
     print("WIFI_ESSID       = Wifi network ESSID")
     print("WIFI_PASSWORD    = Wifi network PASSWORD")
-    print("SERVER_HOST      = Server IP or hostname")
-    print("SERVER_PORT      = Server port")
-    print("SERVER_PATH      = Path for the request")
     print("DATA_ENDPOINT    = Endpoint for data transmission")
 
 
 CONNECTION_MONITOR_DELAY = 0.5
-READ_LOOP_SLEEP = 1
+READ_LOOP_SLEEP = 0.1
 
 
-def work_with_wifi():
+def connect_to_wifi():
     sta_if = network.WLAN(network.STA_IF)
     if not sta_if.isconnected():
         print("connecting to network...")
@@ -90,7 +83,7 @@ def http_request(host, path, port, reconnect_retry, value):
 
 def send_data(value):
     try:
-        request_data = str(value) # {"adc_value": value}
+        request_data = str(value)
         r = urequests.post(DATA_ENDPOINT, data=request_data)
     except Exception as e:
         print("Error:", e)
@@ -100,13 +93,28 @@ class Worker(object):
     def __init__(self, sleep: float) -> None:
         self.sleep = sleep
         self.adc = ADC(0)
-        work_with_wifi()  # TBD: Object attributes?
+
+        self.timer = Timer(-1)
+        self.timer.init(period=10, mode=Timer.PERIODIC, callback=self.sample_callback)
+
+        self.samples = []
+
+        connect_to_wifi()  # TBD: Object attributes?
+
+    def collect_available_samples(self):
+        available_samples = len(self.samples)
+        if available_samples > 0:
+            export_samples = self.samples[:available_samples]
+            self.samples = self.samples[available_samples:]
+            return export_samples
+        return None
+
+    def sample_callback(self, arg):
+        self.samples.append(self.adc.read())
 
     def loop(self):
         while True:
-            value = self.adc.read()
-            # http_request(SERVER_HOST, SERVER_PATH, SERVER_PORT, True, str(value))
-            send_data(value)
+            send_data(self.collect_available_samples())
             time.sleep(self.sleep)
 
 
