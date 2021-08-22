@@ -6,6 +6,8 @@ import socket
 
 from machine import ADC
 
+import urequests
+
 try:
     from network_definitions import (
         WIFI_ESSID,
@@ -13,6 +15,7 @@ try:
         SERVER_HOST,
         SERVER_PORT,
         SERVER_PATH,
+        DATA_ENDPOINT,
     )
 except:
     print(
@@ -23,6 +26,7 @@ except:
     print("SERVER_HOST      = Server IP or hostname")
     print("SERVER_PORT      = Server port")
     print("SERVER_PATH      = Path for the request")
+    print("DATA_ENDPOINT    = Endpoint for data transmission")
 
 
 CONNECTION_MONITOR_DELAY = 0.5
@@ -42,7 +46,7 @@ def work_with_wifi():
 
 
 def value_http_request(path: str, value: str) -> bytes:
-    body = "{\"adc_value\": \"%s\"}" % value
+    body = '{"adc_value": "%s"}' % value
     content_length = len(body)
     request = """POST /%s HTTP/1.1
 Host: localhost:8080
@@ -67,7 +71,6 @@ def http_request(host, path, port, reconnect_retry, value):
         s = socket.socket()
         print("Connect to socket...")
         s.connect(addr)
-        # s.send(bytes("GET /%s HTTP/1.0\r\nHost: %s\r\n\r\n" % (path, host), "utf8"))
         print("Prepare request...")
         request = value_http_request(path, value)
         print(request.decode("utf-8"))
@@ -85,6 +88,14 @@ def http_request(host, path, port, reconnect_retry, value):
             http_request(host, path, port, False, value)
 
 
+def send_data(value):
+    try:
+        request_data = str(value) # {"adc_value": value}
+        r = urequests.post(DATA_ENDPOINT, data=request_data)
+    except Exception as e:
+        print("Error:", e)
+
+
 class Worker(object):
     def __init__(self, sleep: float) -> None:
         self.sleep = sleep
@@ -94,7 +105,8 @@ class Worker(object):
     def loop(self):
         while True:
             value = self.adc.read()
-            http_request(SERVER_HOST, SERVER_PATH, SERVER_PORT, True, str(value))
+            # http_request(SERVER_HOST, SERVER_PATH, SERVER_PORT, True, str(value))
+            send_data(value)
             time.sleep(self.sleep)
 
 
