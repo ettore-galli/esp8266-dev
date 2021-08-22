@@ -8,12 +8,13 @@ export files=(
     "network_definitions.py"
     )
 
+# for FILE in ${files[@]};
+# do
+#     ampy --port $PORT --baud $baud rm $FILE
+# done
 for FILE in ${files[@]};
 do
-    ampy --port $PORT --baud $baud rm $FILE
-done
-for FILE in ${files[@]};
-do
+    echo ${FILE} ...
     ampy --port $PORT --baud $baud put $FILE
 done
 
