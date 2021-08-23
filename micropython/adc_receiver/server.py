@@ -8,7 +8,7 @@ app = Flask(__name__)
 def hello_world():
     values = extract_received_values(request.data)
     dump_received_values(values)
-    return "<p>Hello, World!</p>"
+    return ""
 
 
 def extract_received_values(data):
