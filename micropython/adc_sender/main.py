@@ -29,61 +29,17 @@ READ_LOOP_SLEEP = 0.2
 MAXIMUM_BUFFER_LENGTH = 1000
 
 
-
-# def value_http_request(path: str, value: str) -> bytes:
-#     body = '{"adc_value": "%s"}' % value
-#     content_length = len(body)
-#     request = """POST /%s HTTP/1.1
-# Host: localhost:8080
-# Content-Type: application/json
-# Content-Length: %s
-
-# %s
-# """ % (
-#         path,
-#         content_length,
-#         body,
-#     )
-#     return bytes(request, "utf8")
-
-
-# def http_request(host, path, port, reconnect_retry, value):
-#     try:
-#         print("Init request attempt.")
-#         print("Get address info...")
-#         addr = socket.getaddrinfo(host, port)[0][-1]
-#         print("Instantiate Socket...")
-#         s = socket.socket()
-#         print("Connect to socket...")
-#         s.connect(addr)
-#         print("Prepare request...")
-#         request = value_http_request(path, value)
-#         print(request.decode("utf-8"))
-#         print("Send actual request...")
-#         s.send(request)
-#         data = s.recv(100)
-#         if data:
-#             print(str(data, "utf8"), end="")
-#         s.close()
-#     except Exception as e:
-#         print("Error", e)
-#         if reconnect_retry:
-#             print("retry...")
-#             work_with_wifi()
-#             http_request(host, path, port, False, value)
-
-
 class AdcNetworkSender(object):
     def __init__(self, sleep: float) -> None:
         self.sleep = sleep
         self.adc = ADC(0)
 
-        self.timer = Timer(-1)
-        self.timer.init(period=10, mode=Timer.PERIODIC, callback=self.sample_callback)
-
         self.samples = []
 
         self.connect_to_wifi()  # TBD: Object attributes?
+
+        self.timer = Timer(-1)
+        self.timer.init(period=10, mode=Timer.PERIODIC, callback=self.sample_callback)
 
         gc.collect()
 
