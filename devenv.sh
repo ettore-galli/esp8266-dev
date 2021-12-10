@@ -12,6 +12,8 @@ export IDF_PATH=$ESP_BASE/ESP8266_RTOS_SDK
 
 clear
 
+. ./venv/bin/activate
+
 echo ------------------------------------------------------
 echo ESP8266 DEVELOPMENT ENVIRONMENT
 echo ------------------------------------------------------
