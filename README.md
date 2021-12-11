@@ -6,7 +6,8 @@ https://www.espressif.com/en/products/socs/esp8266
 https://www.espressif.com/sites/default/files/documentation/2a-esp8266-sdk_getting_started_guide_en.pdf
 https://github.com/espressif/ESP8266_RTOS_SDK
 https://github.com/espressif/ESP8266_RTOS_SDK/issues/1028
-
+https://www.freertos.org/2021/01/using-visual-studio-code-for-freertos-development.html
+https://www.electronicshub.org/programming-esp8266-using-vs-code-and-platformio/
 ### 1. Get toolchain (see repo readme)
 Expand directory into ~/esp
 
