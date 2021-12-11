@@ -1,5 +1,4 @@
-
-export PORT=/dev/tty.usbserial-14230
+echo using environment defined port: [$PORT]
 export baud=115200
 
 export files=(
